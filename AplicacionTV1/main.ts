@@ -1,63 +1,57 @@
-import { dataSeries } from "./dataSeries.js";
+import {dataSeries} from "./dataSeries.js"
+import {Serie} from "./Serie.js"
 
-var seriesTbody = document.getElementById('series');
-var avgSeasons = document.getElementById("average-seasons");
-renderSeriesInTable(dataSeries);
-avgSeasons.innerHTML = "" + getAverageSeasons(dataSeries);
-var cards = document.getElementById("cards");
+let seriesTable: HTMLElement = document.getElementById("series")!;
 
-function renderSeriesInTable(series) {
-    console.log('Desplegando series');
-    series.forEach(function (serie) {
-        var trElement = document.createElement("tr");
-        trElement.innerHTML = "<td>" + serie.id + "</td>\n   <td>" + serie.name + "</td>\n     <td>" + serie.channel + "</td>\n    <td>" + serie.seasons + "</td>";
-        seriesTbody.appendChild(trElement);
-    });
+getInfoSeries(dataSeries);
+getAvgSeasons(dataSeries);
+
+function getInfoSeries(series:Serie[]){
+    let tBodyElement: HTMLElement = document.createElement("tBody");
+    for (let serie of series)
+    {
+        let trElement: HTMLElement = document.createElement("tr");
+        trElement.setAttribute("id",serie.id.toString());
+        trElement.onclick = (event) =>
+        {
+            let cardId = (event as MouseEvent & {path: {id: string}[]}).path[1].id
+            let serieInd: Serie = series[Number(cardId)-1]
+            let cardSerie: HTMLElement = document.getElementById("cardSerie")!;
+
+            let img: HTMLElement = document.getElementById("serieImage")!;
+            img.setAttribute("src",serieInd.image)
+            let nombre: HTMLElement = document.getElementById("serieName")!;
+            nombre.innerHTML = `${serie.name}`
+            let descripcion: HTMLElement = document.getElementById("serieDescription")!;
+            descripcion.innerHTML = `${serie.description}`
+            let url: HTMLElement = document.getElementById("url")!;
+            url.innerHTML = `${serie.website}`
+            url.setAttribute("href",serieInd.website)
+            cardSerie.style["display"] = "unset";
+        }  
+        trElement.innerHTML = `<td>${serie.id}</td>
+        <td class = "name">${serie.name}"</td>
+        <td>${serie.channel}</td>
+        <td>${serie.seasons}</td>`;
+    tBodyElement.appendChild(trElement);
+    }
+    seriesTable.appendChild(tBodyElement);
+}
+
+function getAvgSeasons(series:Serie[]) {
+   let tBodyElement: HTMLElement = document.createElement("tBody");
+   let total: number = 0
+   for (let serie of series){
+    total = total + serie.seasons;
+}
+let avgSeasons: number = total/series.length;
+let text: string = "Average Seasons: " + avgSeasons;
+let trElement: HTMLElement = document.createElement("tr");
+trElement.innerHTML = 
+`<td>${text}</td>`
+tBodyElement.appendChild(trElement);
+seriesTable.appendChild(tBodyElement);
 }
 
 
-function getAverageSeasons(series) {
-    var totalSeasons = 0;
-    series.forEach(function(serie) {totalSeasons = totalSeasons + serie.seasons;})
-    return totalSeasons/series.length;
-}
-
-function createCard(series) {
-    series.forEach(function(serie) {
-    var card = document.createElement("div");
-    card.className = "card";
-    card.style = "width: 18rem;";
-
-    var image = document.createElement("img");
-    image.className = "card-img-top";
-    image.src = serie.image;
-
-    var cardBody1 = document.createElement("div");
-    cardBody1.className = "card-body";
-
-    var cardBody2 = document.createElement("div");
-    cardBody2.className = "card-body";
-
-    var title = document.createElement("h5");
-    title.className = "card-title";
-    title.appendChild(serie.name);
-
-    var text = document.createElement("p");
-    text.className ="card-text";
-    text.appendChild(serie.description);
-
-    var link = document.createElement("a");
-    link.href = series.link;
-    link.className = "card-link";
-
-    card.appendChild(image);
-    card.appendChild(cardBody1);
-    card.appendChild(cardBody2);
-    cardBody1.appendChild(title);
-    cardBody1.appendChild(text);
-    cardBody2.appendChild(link);
-
-    cards.appendChild(card);
-});
-}
 
